@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" xmlns:dmndi="https://www.omg.org/spec/DMN/20191111/DMNDI/" xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/" xmlns:modeler="http://camunda.org/schema/modeler/1.0" xmlns:camunda="http://camunda.org/schema/1.0/dmn" id="Definitions_0otfrxd" name="DRD" namespace="http://camunda.org/schema/1.0/dmn" exporter="Camunda Modeler" exporterVersion="5.0.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.17.0">
+  <decision id="Price_infor" name="Check stock availability and calculate milk tea price">
+    <decisionTable id="DecisionTable_1jqhyxj" hitPolicy="FIRST">
+      <input id="Input_1" label="Type Milk Tea" camunda:inputVariable="milkteatype">
+        <inputExpression id="InputExpression_1" typeRef="string">
+          <text>milkteatype</text>
+        </inputExpression>
+      </input>
+      <output id="Output_1" label="Price" name="price" typeRef="string" />
+      <output id="OutputClause_06yqklq" label="Quantity in Stock" name="stock" typeRef="integer" />
+      <rule id="DecisionRule_0usg9o9">
+        <inputEntry id="UnaryTests_1ckjh9y">
+          <text>"Trà Sữa Truyền Thống"</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_1jf8knv">
+          <text>"19000"</text>
+        </outputEntry>
+        <outputEntry id="LiteralExpression_11j1u0e">
+          <text>100</text>
+        </outputEntry>
+      </rule>
+      <rule id="DecisionRule_0uxuwbs">
+        <inputEntry id="UnaryTests_161l387">
+          <text>"Trà Sữa Khoai Môn"</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_1gzdktg">
+          <text>"22000"</text>
+        </outputEntry>
+        <outputEntry id="LiteralExpression_1hno78x">
+          <text>120</text>
+        </outputEntry>
+      </rule>
+      <rule id="DecisionRule_1eygovk">
+        <inputEntry id="UnaryTests_0kkilsk">
+          <text>"Trà Sữa Matcha"</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_0clztko">
+          <text>"29000"</text>
+        </outputEntry>
+        <outputEntry id="LiteralExpression_03gpme8">
+          <text>120</text>
+        </outputEntry>
+      </rule>
+      <rule id="DecisionRule_0y1yxsd">
+        <inputEntry id="UnaryTests_1mrp7vs">
+          <text>"Trà Sữa Dâu"</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_02yhw3p">
+          <text>"17000"</text>
+        </outputEntry>
+        <outputEntry id="LiteralExpression_01n9jou">
+          <text>90</text>
+        </outputEntry>
+      </rule>
+      <rule id="DecisionRule_0t3vtdk">
+        <inputEntry id="UnaryTests_0fnrmln">
+          <text>"Trà Sữa Đường Đen"</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_1yhl7fu">
+          <text>"30000"</text>
+        </outputEntry>
+        <outputEntry id="LiteralExpression_0g0m6sr">
+          <text>89</text>
+        </outputEntry>
+      </rule>
+      <rule id="DecisionRule_1xmm9lo">
+        <inputEntry id="UnaryTests_09azhoo">
+          <text>"Trà Sữa Ô Long"</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_16669qs">
+          <text>"23000"</text>
+        </outputEntry>
+        <outputEntry id="LiteralExpression_0up9xww">
+          <text>0</text>
+        </outputEntry>
+      </rule>
+    </decisionTable>
+  </decision>
+  <dmndi:DMNDI>
+    <dmndi:DMNDiagram>
+      <dmndi:DMNShape dmnElementRef="Price_infor">
+        <dc:Bounds height="80" width="180" x="160" y="120" />
+      </dmndi:DMNShape>
+    </dmndi:DMNDiagram>
+  </dmndi:DMNDI>
+</definitions>

@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_0fr9mxs" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.0.0">
+  <bpmn:process id="QuyTrinhDatTraSuaTuXa-process" name="QuyTrinhDatTraSuaTuXa" isExecutable="true" camunda:historyTimeToLive="180">
+    <bpmn:startEvent id="StartEvent_1">
+      <bpmn:outgoing>SequenceFlow_1fp17al</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="SequenceFlow_1fp17al" sourceRef="StartEvent_1" targetRef="Gateway_17tmmti" />
+    <bpmn:userTask id="customer_information" name="Enter customer information and customer&#39;s order" camunda:candidateUsers="demo">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="username" label="username" type="string" />
+          <camunda:formField id="number" label="Number of Orders" type="long" />
+          <camunda:formField id="milkteatype" label="Milk tea Type" type="string" />
+          <camunda:formField id="size" label="size ( M or L) )" type="string" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0wr0zxr</bpmn:incoming>
+      <bpmn:outgoing>Flow_1m9wyy0</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:serviceTask id="check_stock" name="Check stock" camunda:class="com.example.workflow.check_Stock">
+      <bpmn:incoming>Flow_1oeb32n</bpmn:incoming>
+      <bpmn:outgoing>Flow_1hqek0i</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="Gateway_15myeu2" name="Check seats">
+      <bpmn:incoming>Flow_1hqek0i</bpmn:incoming>
+      <bpmn:outgoing>still_empty</bpmn:outgoing>
+      <bpmn:outgoing>no_space_left</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="still_empty" name="Stock Availability" sourceRef="Gateway_15myeu2" targetRef="confirm_order">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${validation==1}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="no_space_left" name="Invalid" sourceRef="Gateway_15myeu2" targetRef="send_Mail">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${validation==0}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sendTask id="send_Mail" name="Anouncement invalid or out of stock" camunda:class="com.example.workflow.announce_OutOfStock">
+      <bpmn:incoming>no_space_left</bpmn:incoming>
+      <bpmn:outgoing>Flow_01d2pgt</bpmn:outgoing>
+    </bpmn:sendTask>
+    <bpmn:exclusiveGateway id="Gateway_176fz9i" name="Check Confirm">
+      <bpmn:incoming>Flow_0qya11s</bpmn:incoming>
+      <bpmn:outgoing>check_failture</bpmn:outgoing>
+      <bpmn:outgoing>check_success</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="check_failture" name="Cancel" sourceRef="Gateway_176fz9i" targetRef="announce_Cancel">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${check==0}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:endEvent id="Event_1vzek5v">
+      <bpmn:incoming>Flow_1g1q8nb</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1g1q8nb" sourceRef="announce_Cancel" targetRef="Event_1vzek5v" />
+    <bpmn:sequenceFlow id="check_success" name="OK" sourceRef="Gateway_176fz9i" targetRef="Activity_1vinvpb">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${check==1}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:endEvent id="Event_0jl8epf">
+      <bpmn:incoming>Flow_1wdz6ih</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1wdz6ih" sourceRef="announce_Success" targetRef="Event_0jl8epf" />
+    <bpmn:sendTask id="announce_Cancel" name="Announce cancel order" camunda:class="com.example.workflow.announce_Cancel">
+      <bpmn:incoming>check_failture</bpmn:incoming>
+      <bpmn:outgoing>Flow_1g1q8nb</bpmn:outgoing>
+    </bpmn:sendTask>
+    <bpmn:sendTask id="announce_Success" name="Notification of successful milktea purchase" camunda:class="com.example.workflow.announce_Success">
+      <bpmn:incoming>Flow_0s00dto</bpmn:incoming>
+      <bpmn:outgoing>Flow_1wdz6ih</bpmn:outgoing>
+    </bpmn:sendTask>
+    <bpmn:businessRuleTask id="Price_infor" name="Check milktea information and calculate price" camunda:resultVariable="price,stock" camunda:decisionRef="Price_infor">
+      <bpmn:incoming>Flow_1m9wyy0</bpmn:incoming>
+      <bpmn:outgoing>Flow_1oeb32n</bpmn:outgoing>
+    </bpmn:businessRuleTask>
+    <bpmn:sequenceFlow id="Flow_1m9wyy0" sourceRef="customer_information" targetRef="Price_infor" />
+    <bpmn:sequenceFlow id="Flow_1oeb32n" sourceRef="Price_infor" targetRef="check_stock" />
+    <bpmn:sequenceFlow id="Flow_1hqek0i" sourceRef="check_stock" targetRef="Gateway_15myeu2" />
+    <bpmn:exclusiveGateway id="Gateway_17tmmti">
+      <bpmn:incoming>SequenceFlow_1fp17al</bpmn:incoming>
+      <bpmn:incoming>Flow_01d2pgt</bpmn:incoming>
+      <bpmn:outgoing>Flow_0wr0zxr</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_0wr0zxr" sourceRef="Gateway_17tmmti" targetRef="customer_information" />
+    <bpmn:sequenceFlow id="Flow_01d2pgt" sourceRef="send_Mail" targetRef="Gateway_17tmmti" />
+    <bpmn:userTask id="Activity_1vinvpb" name="Payments">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="paymentmethods" label="Payment Method" type="enum">
+            <camunda:value id="Cash" name="Cash" />
+            <camunda:value id="Card" name="Credit Card" />
+          </camunda:formField>
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>check_success</bpmn:incoming>
+      <bpmn:outgoing>Flow_0s00dto</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_0ihx8i7" sourceRef="confirm_order" targetRef="Activity_0ygy26w" />
+    <bpmn:sequenceFlow id="Flow_0qya11s" sourceRef="Activity_0ygy26w" targetRef="Gateway_176fz9i" />
+    <bpmn:sequenceFlow id="Flow_0s00dto" sourceRef="Activity_1vinvpb" targetRef="announce_Success" />
+    <bpmn:serviceTask id="Activity_0ygy26w" name="Confirm order milk tea" camunda:class="com.example.workflow.confirm_Order">
+      <bpmn:incoming>Flow_0ihx8i7</bpmn:incoming>
+      <bpmn:outgoing>Flow_0qya11s</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:userTask id="confirm_order" name="Confirm Order">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="confirm_order" label="Confirm Order" type="enum">
+            <camunda:value id="OK" name="OK" />
+            <camunda:value id="Cancel" name="Cancel Order" />
+          </camunda:formField>
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>still_empty</bpmn:incoming>
+      <bpmn:outgoing>Flow_0ihx8i7</bpmn:outgoing>
+    </bpmn:userTask>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="QuyTrinhDatTraSuaTuXa-process">
+      <bpmndi:BPMNEdge id="Flow_1hqek0i_di" bpmnElement="Flow_1hqek0i">
+        <di:waypoint x="880" y="317" />
+        <di:waypoint x="955" y="317" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1oeb32n_di" bpmnElement="Flow_1oeb32n">
+        <di:waypoint x="700" y="317" />
+        <di:waypoint x="780" y="317" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1m9wyy0_di" bpmnElement="Flow_1m9wyy0">
+        <di:waypoint x="460" y="317" />
+        <di:waypoint x="600" y="317" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1wdz6ih_di" bpmnElement="Flow_1wdz6ih">
+        <di:waypoint x="670" y="750" />
+        <di:waypoint x="538" y="750" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_19aety4_di" bpmnElement="check_success">
+        <di:waypoint x="1200" y="645" />
+        <di:waypoint x="1200" y="750" />
+        <di:waypoint x="1030" y="750" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1161" y="683" width="17" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1g1q8nb_di" bpmnElement="Flow_1g1q8nb">
+        <di:waypoint x="930" y="620" />
+        <di:waypoint x="738" y="620" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1yzvcss_di" bpmnElement="check_failture">
+        <di:waypoint x="1175" y="620" />
+        <di:waypoint x="1030" y="620" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1085" y="602" width="35" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_00p8dxn_di" bpmnElement="no_space_left">
+        <di:waypoint x="980" y="292" />
+        <di:waypoint x="980" y="160" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="943" y="223" width="33" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_08wf3we_di" bpmnElement="still_empty">
+        <di:waypoint x="1005" y="317" />
+        <di:waypoint x="1150" y="317" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1018" y="299" width="82" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_1fp17al_di" bpmnElement="SequenceFlow_1fp17al">
+        <di:waypoint x="168" y="317" />
+        <di:waypoint x="245" y="317" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0wr0zxr_di" bpmnElement="Flow_0wr0zxr">
+        <di:waypoint x="295" y="317" />
+        <di:waypoint x="360" y="317" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_01d2pgt_di" bpmnElement="Flow_01d2pgt">
+        <di:waypoint x="930" y="120" />
+        <di:waypoint x="270" y="120" />
+        <di:waypoint x="270" y="292" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0ihx8i7_di" bpmnElement="Flow_0ihx8i7">
+        <di:waypoint x="1200" y="357" />
+        <di:waypoint x="1200" y="440" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0qya11s_di" bpmnElement="Flow_0qya11s">
+        <di:waypoint x="1200" y="520" />
+        <di:waypoint x="1200" y="595" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0s00dto_di" bpmnElement="Flow_0s00dto">
+        <di:waypoint x="930" y="750" />
+        <di:waypoint x="770" y="750" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="UserTask_08mft2c_di" bpmnElement="customer_information">
+        <dc:Bounds x="360" y="277" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0e84zet_di" bpmnElement="check_stock">
+        <dc:Bounds x="780" y="277" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_15myeu2_di" bpmnElement="Gateway_15myeu2" isMarkerVisible="true">
+        <dc:Bounds x="955" y="292" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="949" y="353" width="61" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_13l3i8a_di" bpmnElement="send_Mail">
+        <dc:Bounds x="930" y="80" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_176fz9i_di" bpmnElement="Gateway_176fz9i" isMarkerVisible="true">
+        <dc:Bounds x="1175" y="595" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1233" y="613" width="74" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0qn0k5o_di" bpmnElement="Price_infor">
+        <dc:Bounds x="600" y="277" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_17tmmti_di" bpmnElement="Gateway_17tmmti" isMarkerVisible="true">
+        <dc:Bounds x="245" y="292" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="132" y="299" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_01q7ew5_di" bpmnElement="announce_Success">
+        <dc:Bounds x="670" y="710" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0jl8epf_di" bpmnElement="Event_0jl8epf">
+        <dc:Bounds x="502" y="732" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0cle4ui_di" bpmnElement="Activity_0ygy26w">
+        <dc:Bounds x="1150" y="440" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1kgjq3i_di" bpmnElement="confirm_order">
+        <dc:Bounds x="1150" y="277" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0tawe65_di" bpmnElement="announce_Cancel">
+        <dc:Bounds x="930" y="580" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_1vn5eia" bpmnElement="Activity_1vinvpb">
+        <dc:Bounds x="930" y="710" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1vzek5v_di" bpmnElement="Event_1vzek5v">
+        <dc:Bounds x="702" y="602" width="36" height="36" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
